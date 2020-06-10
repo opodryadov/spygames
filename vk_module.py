@@ -2,9 +2,10 @@ import requests
 import time
 from itertools import chain
 
-TOKEN = 'a180756acd7bed622871623f37d94932a75083403b1542ac21539edeaf16f32e3085da79166e3dc86c36d'
-TIME = 1 # время задержки, сек
-DEBUG = 0 # показывать сообщения в консоли
+TOKEN = '958eb5d439726565e9333aa30e50e0f937ee432e927f0dbd541c541887d919a7c56f95c04217915c32008'
+TIME = 1  # время задержки, сек
+DEBUG = 0  # показывать сообщения в консоли
+
 
 class VK_API:
 
@@ -26,7 +27,12 @@ class VK_API:
             f'https://api.vk.com/method/{method}',
             params,
         )
-        return response.json()
+        if 'error' in response.json():
+            if DEBUG == 1:
+                print('Error')
+            return None
+        else:
+            return response.json()
 
     def get_groups(self):
         response = self.get_request(
