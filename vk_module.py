@@ -12,14 +12,15 @@ class VK_API:
     def __init__(self, user_id):
         self.user_id = user_id
 
-    def get_params(self, user_id, groups_ids='', fields=''):
-        return {
+    def get_params(self, add_params: dict = None):
+        params = {
             'access_token': TOKEN,
-            'user_id': user_id,
-            'v': '5.107',
-            'group_ids': groups_ids,
-            'fields': fields,
+            'v': '5.107'
         }
+        if add_params:
+            params.update(add_params)
+            pass
+        return params
 
     def get_request(self, method, params):
         self.method = method
@@ -37,7 +38,7 @@ class VK_API:
     def get_groups(self):
         response = self.get_request(
             'groups.get',
-            self.get_params(self.user_id)
+            self.get_params({'user_id':self.user_id})
         )
         return response['response']['items']
 
@@ -45,7 +46,7 @@ class VK_API:
         friends_list = []
         response = self.get_request(
             'friends.get',
-            self.get_params(self.user_id)
+            self.get_params({'user_id':self.user_id})
         )
         for user_id in response['response']['items']:
             friends_list.append(user_id)
@@ -66,14 +67,15 @@ class VK_API:
                     print(f'id{friend_id} - закрытый профиль')
         friends_groups = set(list(chain.from_iterable(groups_list)))
         user_groups.difference_update(friends_groups)
-        return list(user_groups)
+        return user_groups
 
-    def get_unique_groups(self, user_id):
+    def get_unique_groups(self):
         groups = self.run()
         time.sleep(TIME)
         groups_ids = ','.join(str(e) for e in groups)
         response = self.get_request(
             'groups.getById',
-            self.get_params(user_id, groups_ids, 'members_count')
+            self.get_params({'group_ids':groups_ids,
+                            'fields':'members_count'})
         )
         return response['response']
